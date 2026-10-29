@@ -17,7 +17,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400..800;1,700..900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="img/hero-yamaha.webp" fetchpriority="high">
-<link rel="stylesheet" href="css/styles.css">
+<script>
+  // La web se abre siempre arriba del todo: el navegador no recupera la posición anterior
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+</script>
+<link rel="stylesheet" href="css/styles.css?v=4">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -584,6 +588,6 @@
   <a class="btn btn-ghost" href="tel:+34669446971" aria-label="Llamar al 669 44 69 71"><svg aria-hidden="true"><use href="#i-phone"/></svg>Llamar</a>
 </div>
 
-<script src="js/main.js" defer></script>
+<script src="js/main.js?v=4" defer></script>
 </body>
 </html>

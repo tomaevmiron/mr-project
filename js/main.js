@@ -12,7 +12,12 @@
 
   // Al abrir o recargar, la web empieza siempre arriba (salvo que el enlace apunte a una sección)
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  if (!location.hash) scrollTo(0, 0);
+  let touched = false;
+  ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(ev => addEventListener(ev, () => { touched = true; }, { once: true, passive: true }));
+  const toTop = () => { if (!location.hash && !touched) scrollTo(0, 0); };
+  toTop();
+  addEventListener('load', toTop);
+  addEventListener('pageshow', toTop);
 
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
