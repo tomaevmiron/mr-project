@@ -30,7 +30,6 @@
   --r-btn: 8px;
   --nav-h: 56px;
   --sec: clamp(96px, 11vw, 150px);
-  --gx: max(20px, calc((100vw - 1200px) / 2));
   --ease: cubic-bezier(.2, .7, .1, 1);
 
   --font: "Inter Tight", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -39,6 +38,8 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--nav-h) + 12px); }
+/* Escala por defecto al 90 % en pantallas de tableta y ordenador */
+@media (min-width: 761px) { html { zoom: .9; } }
 body {
   margin: 0;
   background: var(--bg);
@@ -193,15 +194,13 @@ ul, ol { list-style: none; }
 .anat-head .eyebrow { color: var(--blue-hi); }
 .anat-head .lead { margin-inline: auto; color: var(--mute-2); }
 .anat-head .lead strong { color: #f5f5f7; }
-.anat-track { position: relative; height: calc(var(--phases, 7) * 62vh + 100vh); margin-top: clamp(24px, 4vw, 48px); }
-.anat-sticky {
-  position: sticky; top: var(--nav-h); height: calc(100vh - var(--nav-h));
-  width: min(1380px, 100% - 40px); margin-inline: auto;
+.anat-body {
+  width: min(1380px, 100% - 40px); margin: clamp(36px, 4.5vw, 60px) auto 0;
   display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr); gap: clamp(28px, 4vw, 64px); align-items: center;
 }
 .anat-stage {
-  position: relative; width: min(100%, calc((100vh - var(--nav-h) - 96px) * 1.426)); aspect-ratio: 2400 / 1683;
-  border-radius: var(--r-lg); overflow: hidden; background: #0d0d0f; justify-self: center;
+  position: relative; width: 100%; aspect-ratio: 2400 / 1683;
+  border-radius: var(--r-lg); overflow: hidden; background: #0d0d0f;
   transform: translateZ(0);
 }
 .anat-zoom {
@@ -232,7 +231,10 @@ ul, ol { list-style: none; }
   padding: 5px 9px; border-radius: 6px; white-space: nowrap; opacity: 0; transition: opacity .3s; pointer-events: none;
 }
 .hs:hover span, .hs.on span { opacity: 1; }
+.hs:hover { background: rgba(255,255,255,.38); }
 .hs.on { background: var(--blue); }
+/* Punto activo: un "−" indica que al volver a tocarlo se aleja la imagen */
+.hs.on::before { inset: auto; left: 50%; top: 50%; width: 11px; height: 2px; border-radius: 1px; transform: translate(-50%, -50%); }
 .anat[data-phase]:not([data-phase="0"]) .hs:not(.on) { opacity: .3; }
 .anat[data-phase]:not([data-phase="0"]) .hs:not(.on)::after { animation: none; opacity: 0; }
 @keyframes ping { 0% { transform: scale(1); opacity: .9; } 80%, 100% { transform: scale(2.1); opacity: 0; } }
@@ -256,8 +258,6 @@ ul, ol { list-style: none; }
 .anat-copy p { margin-top: 12px; color: #a1a1a6; font-size: 17px; line-height: 1.5; }
 .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; }
 .tags li { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: #d2d2d7; padding: 6px 9px; border: 1px solid rgba(255,255,255,.18); border-radius: 6px; }
-.anat-progress { height: 2px; background: rgba(255,255,255,.12); border-radius: 2px; overflow: hidden; }
-.anat-progress i { display: block; height: 100%; background: var(--blue-hi); transform-origin: left; transform: scaleX(var(--prog, 0)); transition: transform .2s linear; }
 .anat-foot { padding: 56px 0 var(--sec); text-align: center; color: var(--mute-2); }
 
 /* ---------- Servicio Oficial Yamaha ---------- */
@@ -291,10 +291,10 @@ ul, ol { list-style: none; }
 .rail-ctrl button:hover { background: rgba(255,255,255,.1); }
 .rail-ctrl button:disabled { opacity: .3; cursor: default; background: none; }
 .rail-ctrl svg { width: 16px; height: 16px; }
-.rail { overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin-top: 30px; overscroll-behavior-x: contain; }
+.rail { overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: max(20px, calc((100% - 1200px) / 2)); scrollbar-width: none; margin-top: 30px; overscroll-behavior-x: contain; }
 .rail::-webkit-scrollbar { display: none; }
-.rail ul { display: flex; gap: 18px; width: max-content; padding: 0 var(--gx) 6px; }
-.car { scroll-snap-align: start; scroll-margin-left: var(--gx); width: clamp(272px, 29vw, 372px); flex: none; display: flex; flex-direction: column; border-radius: var(--r-md); overflow: hidden; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08); }
+.rail ul { display: flex; gap: 18px; width: max-content; padding: 0 max(20px, calc((100% - 1200px) / 2)) 6px; }
+.car { scroll-snap-align: start; width: clamp(272px, 29vw, 372px); flex: none; display: flex; flex-direction: column; border-radius: var(--r-md); overflow: hidden; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08); }
 .car figure { aspect-ratio: 4 / 3.2; overflow: hidden; background: #050b33; }
 .car img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
 .car:hover img { transform: scale(1.05); }
@@ -528,9 +528,8 @@ ul, ol { list-style: none; }
 }
 
 @media (max-width: 900px) {
-  .anat-track { height: auto; }
-  .anat-sticky { position: static; height: auto; grid-template-columns: 1fr; gap: 22px; }
-  .anat-stage { width: 100%; border-radius: var(--r-md); }
+  .anat-body { grid-template-columns: 1fr; gap: 22px; }
+  .anat-stage { border-radius: var(--r-md); }
   .anat-index { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 0 20px; }
   .anat-index::-webkit-scrollbar { display: none; }
   .anat-index li { flex: none; }
@@ -538,7 +537,6 @@ ul, ol { list-style: none; }
   .anat-index button.on { background: #fff; color: #000; border-color: #fff; }
   .anat-index button.on .mono { color: var(--blue); }
   .anat-copy { min-height: 0; }
-  .anat-progress { display: none; }
   .anat-foot { padding-top: 40px; }
   .hs { width: 26px; height: 26px; }
   .hs::before { inset: 8px; }

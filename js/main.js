@@ -168,18 +168,14 @@
     nav.classList.toggle('dark', dark);
   }
 
-  /* ---------- Anatomía guiada por scroll ---------- */
+  /* ---------- Anatomía: cada punto acerca la imagen y, al volver a tocarlo, la aleja ---------- */
   const anat = $('#taller');
-  const track = $('[data-anat-track]');
   const zoom = $('[data-anat-zoom]');
   const spots = $$('.hs', zoom);
   const idxBtns = $$('.anat-index button');
   const arts = $$('.anat-copy article');
-  const prog = $('[data-anat-progress]');
-  const PHASES = arts.length; // 0 = vista general, 1..6 = sistemas
-  const ZOOM = [1, 2.1, 2.2, 2.1, 2.2, 2.1, 2.3];
+  const ZOOM = [1, 2.1, 2.2, 2.1, 2.2, 2.1, 2.3]; // 0 = vista general, 1..6 = sistemas
   let phase = -1;
-  const scrollMode = () => !reduce && matchMedia('(min-width: 901px)').matches;
 
   function setPhase(p) {
     if (p === phase) return;
@@ -195,7 +191,10 @@
       zoom.style.setProperty('--z', ZOOM[p]);
       zoom.style.setProperty('--dim', 1);
     }
-    spots.forEach((s, i) => s.classList.toggle('on', i === p - 1));
+    spots.forEach((s, i) => {
+      s.classList.toggle('on', i === p - 1);
+      s.setAttribute('aria-pressed', String(i === p - 1));
+    });
     idxBtns.forEach((b, i) => {
       b.classList.toggle('on', i === p - 1);
       b.setAttribute('aria-current', i === p - 1 ? 'step' : 'false');
@@ -203,25 +202,11 @@
     arts.forEach((a, i) => a.classList.toggle('on', i === p));
   }
 
-  function anatScroll() {
-    if (!scrollMode()) return;
-    const r = track.getBoundingClientRect();
-    const span = track.offsetHeight - innerHeight;
-    const t = Math.min(1, Math.max(0, -r.top / span));
-    prog.style.setProperty('--prog', t.toFixed(3));
-    setPhase(Math.min(PHASES - 1, Math.floor(t * PHASES)));
-  }
-
   $$('[data-phase-go]', anat).forEach(b => b.addEventListener('click', () => {
     const p = +b.dataset.phaseGo;
-    if (scrollMode()) {
-      const top = track.getBoundingClientRect().top + scrollY;
-      const span = track.offsetHeight - innerHeight;
-      scrollTo({ top: top + span * ((p + 0.5) / PHASES), behavior: 'smooth' });
-    } else {
-      setPhase(phase === p ? 0 : p);
-    }
+    setPhase(phase === p ? 0 : p);
   }));
+  anat.addEventListener('keydown', e => { if (e.key === 'Escape' && phase > 0) setPhase(0); });
   setPhase(0);
 
   /* ---------- Gama Yamaha (carril horizontal) ---------- */
@@ -447,13 +432,12 @@
     ticking = true;
     requestAnimationFrame(() => {
       navTheme();
-      anatScroll();
       mbarState();
       ticking = false;
     });
   }
   addEventListener('scroll', onScroll, { passive: true });
-  addEventListener('resize', () => { if (!scrollMode() && phase < 0) setPhase(0); onScroll(); });
+  addEventListener('resize', onScroll);
   onScroll();
 
   /* ---------- Arranque ---------- */
