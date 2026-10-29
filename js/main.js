@@ -10,6 +10,10 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.documentElement.classList.add('js');
 
+  // Al abrir o recargar, la web empieza siempre arriba (salvo que el enlace apunte a una sección)
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (!location.hash) scrollTo(0, 0);
+
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* sin almacenamiento */ } }
@@ -74,8 +78,13 @@
     }, reduce ? 0 : 200);
   }
 
-  function showHero(id) {
+  function showHero(id, instant) {
     heroId = id;
+    // Al cargar con una marca guardada, la foto inicial se retira sin fundido para que no se superpongan
+    if (instant) {
+      stage.classList.add('instant');
+      requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove('instant')));
+    }
     const i = HERO_ORDER.indexOf(id);
     heroImgs.forEach(img => {
       const on = img.dataset.id === id;
@@ -125,15 +134,20 @@
 
   pauseBtn.addEventListener('click', () => setAutoplay(!autoplay));
 
+  // Solo se desplaza la fila de marcas en horizontal; la página no se mueve
+  function centerTab(t, smooth) {
+    tabsBox.scrollTo({ left: t.offsetLeft - (tabsBox.clientWidth - t.offsetWidth) / 2, behavior: smooth && !reduce ? 'smooth' : 'auto' });
+  }
+
   // Cuando el visitante elige marca (en cualquier parte), el carrusel se detiene en ella
-  onBrand(id => {
+  onBrand((id, opts) => {
     autoplay = false;
     pauseBtn.setAttribute('aria-pressed', 'true');
     pauseBtn.setAttribute('aria-label', 'Reanudar el cambio automático de marca');
     if (HERO_ORDER.includes(id)) {
-      showHero(id);
+      showHero(id, opts.silent);
       const t = tabs[HERO_ORDER.indexOf(id)];
-      if (t) t.scrollIntoView({ block: 'nearest', inline: 'center', behavior: reduce ? 'auto' : 'smooth' });
+      if (t) centerTab(t, !opts.silent);
     }
   });
 
@@ -454,6 +468,8 @@
 
   // Con la página cargada, se descargan el resto de fotos de portada
   addEventListener('load', () => {
+    const sel = tabs.find(t => t.getAttribute('aria-selected') === 'true');
+    if (sel) centerTab(sel, false);
     let i = 0;
     const queue = heroImgs.filter(img => !img.getAttribute('src'));
     const nextImg = () => { const img = queue[i++]; if (!img) return; loadImg(img); img.addEventListener('load', nextImg, { once: true }); img.addEventListener('error', nextImg, { once: true }); };
